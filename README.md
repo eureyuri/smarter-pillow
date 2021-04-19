@@ -48,6 +48,18 @@ POST /insert_weight
 }
 ```
 
+#### Set pillow height
+We can control the height of the two pillows separately.
+Currently, we only support max and min inflation. 
+Internally, this is connected to IFTTT, which makes the call to Kasa API
+to turn on/off the air pump connected to the pillow. 
+```
+{
+  "pillow": "lower" || "upper",
+  "state": true || false
+}
+```
+
 ### ESP8266
 The ESP8266 chip is in charge of interfacing with the pressure sensor and sending the data to our backend Flask server. 
 Therefore, it serves both as a client and a server. As a server, it exposes the endpoint
