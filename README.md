@@ -1,8 +1,9 @@
 # smarter-pillow
 ## Description
 ### Motivation
+
 ### Functionality
-TODO
+
 
 ## Demo
 TODO
@@ -32,6 +33,16 @@ The Flask server interfaces with the Android App and ESP8266 and communicates wi
 
 ### ESP8266
 The ESP8266 chip is in charge of interfacing with the pressure sensor and sending the data to our backend Flask server. 
+Therefore, it serves both as a client and a server. As a server, it exposes the endpoint
+```
+POST /set_get_weight
+{
+  "state": true || false
+}
+```
+When the `state` is set to `true`, we will spawn a new thread that will act as a client to the Flask server.
+Here, we will continuously collect the sensor values, until `state` is set to `false`, from the load cell connected to 
+the HX711 amplifier and make a post request with the collected weight data. 
 
 ### AWS
 We have a linux instance running on our AWS EC2 cloud. On the instance we have mongodb installed, which we use to 
@@ -53,6 +64,11 @@ The schema is as follows.
   
 }
 ```
+
+## References
+- Library to interface with HX711 load cell amplifier for weight sensor 
+  [robert-hh/hx711](https://github.com/robert-hh/hx711/tree/1ca0d87b58eb47f4810241a01e4181880e891b29)
+- Wiring the weight sensor with HX711: https://circuitjournal.com/50kg-load-cells-with-HX711
 
 ## Authors
 - Eurey Noguchi
