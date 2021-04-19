@@ -1,0 +1,17 @@
+Turn on air pump for pillow
+curl -X POST -H "Content-Type: application/json" -d '{"state": true, "pillow": "upper"}' 127.0.0.1:8080/set_pillow_height
+
+Insert snore data
+curl -X POST -H "Content-Type: application/json" -d '{"datetime": "2017-10-15T10:53:53.000Z", "loudness": 0, "snore": false}' 127.0.0.1:8080/insert_sound
+
+Get snore data
+curl -X GET -H "Content-Type: application/json" -d '{"datetime": "2017-10-13T10:53:53.000Z"}' 127.0.0.1:8080/snore
+
+Insert weight
+curl -X POST -H "Content-Type: application/json" -d '{"value": 0}' 127.0.0.1:8080/insert_weight
+
+Get movement
+curl -X GET -H "Content-Type: application/json" -d '{"datetime": "2021-04-19T14:32:17.000Z"}' 127.0.0.1:8080/movement
+
+Get sleep quality
+curl -X GET -H "Content-Type: application/json" -d '{"datetime": "2021-04-19T14:32:17.000Z"}' 127.0.0.1:8080/sleep_quality

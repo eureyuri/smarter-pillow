@@ -1,70 +1,186 @@
 from flask import Flask
-from flask import jsonify
 from flask import request
+from flask import Response
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
 import json
-from bson import ObjectId
 import requests
-import pickle
+from datetime import datetime, date, timedelta
 
-
-class JSONEncoder(json.JSONEncoder):
-    def default(self, o):
-        if isinstance(o, ObjectId):
-            return str(o)
-        return json.JSONEncoder.default(self, o)
-
-
-load_dotenv()
 
 app = Flask(__name__)
-ssh_address = "ec2-18-206-197-126.compute-1.amazonaws.com"
-MODEL_FILE = 'model.sav'
+
+load_dotenv()
 IFTTT_KEY = os.getenv('IFTTT_KEY')
+IFTTT_KEY2 = os.getenv('IFTTT_KEY2')
+SSH_ADDRESS = os.getenv('SSH_ADDRESS')
+ESP_URL = os.getenv('ESP_URL')
+
+# MongoDB Collections
+db_weight = None
+db_snore = None
 
 
 # Had to change to accept TCP port 27017 for inbound
 def connect_to_mongo():
-    global gestures
+    global db_weight, db_snore
     try:
-        uri = "mongodb://" + ssh_address + ":27017"
+        uri = "mongodb://" + SSH_ADDRESS + ":27017"
         client = MongoClient(uri)
 
-        auth = client.gestures.authenticate(os.getenv('MONGO_USERNAME'), os.getenv('MONGO_PASS'))
+        auth = client.smarter_pillow.authenticate(os.getenv('MONGO_USERNAME'), os.getenv('MONGO_PASS'))
         if not auth:
             print("MongoDB authentication failure: Please check the username or password")
             return None
 
-        db = client.gestures
-        collection = db.gestures
-        gestures = collection
+        db = client.smarter_pillow
+        db_weight = db.weight
+        db_snore = db.snore
     except Exception as e:
         print("MongoDB connection failure: Please check the connection details")
         print(e)
 
 
+def json_serial(obj):
+    """JSON serializer for objects not serializable by default json code"""
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+    raise TypeError("Type %s not serializable" % type(obj))
+
+
+def get_formatted_datetime(time):
+    return datetime.strptime(time, "%Y-%m-%dT%H:%M:%S.000Z")
+
+
+def get_snore_data(time):
+    cursor_snore = db_snore.find({
+        'datetime': {
+            '$gte': time,
+            '$lte': time + timedelta(days=1)
+        }
+    }, {'_id': False, 'snore': False})
+
+    res_snore = []
+    for document in cursor_snore:
+        res_snore.append(document)
+
+    return res_snore
+
+
+def get_weight_data(time):
+    cursor_weight = db_weight.find({
+        'datetime': {
+            '$gte': time,
+            '$lte': time + timedelta(days=1)
+        }
+    }, {'_id': False})
+
+    res_weight = []
+    for document in cursor_weight:
+        res_weight.append(document)
+
+    return res_weight
+
+
+def calculate_movement_percentage(data):
+    movement_count = 0
+    prev_movement = data[0]['value']
+    for d in data:
+        current_movement = d['value']
+        if abs(prev_movement - current_movement) >= 0.5:
+            movement_count += 1
+        prev_movement = current_movement
+    return 1 - (movement_count / len(data))
+
+
+def calculate_snore_percentage(data):
+    snore_count = 0
+    for d in data:
+        if d['snore']:
+            snore_count += 1
+    return 1 - (snore_count / len(data))
+
+
 @app.route('/', methods=['GET'])
-def show():
-    cursor = gestures.find({})
-    res = []
-    for document in cursor:
-        res.append(document)
-
-    return JSONEncoder().encode(res)
+def index():
+    return "<h1>Smarter Pillow Backend!</h1>"
 
 
-@app.route('/insert', methods=['POST'])
-def insert_gesture():
-    print(json.loads(request.data.decode()))
-    gestures.insert_one(json.loads(request.data.decode()))
-    print("inserted")
+@app.route('/set_weight_sensor', methods=['POST'])
+def set_weight_sensor():
+    is_set_sensor = json.loads(request.data.decode())['state']
+    data = {
+        'state': is_set_sensor
+    }
+    requests.post(ESP_URL + '/set_get_weight', data=data, headers={'Content-Type': 'application/json'})
+    return "set get weight"
 
-    return "inserted"
+
+@app.route('/sleep_quality', methods=['GET'])
+def sleep_quality():
+    time = get_formatted_datetime(json.loads(request.data.decode())['datetime'])
+    snore_data = get_snore_data(time)
+    weight_data = get_weight_data(time)
+
+    if len(snore_data) > 0 and len(weight_data > 0):
+        movement = calculate_movement_percentage(weight_data)
+        snore = calculate_snore_percentage(snore_data)
+        overall_quality = 1 - (movement + snore) / 2
+
+        res = {
+            "sleep_quality": overall_quality,
+            "movement": movement,
+            "snore": snore
+        }
+    else:
+        # Not enough data to show
+        res = {
+            "sleep_quality": 0,
+            "movement": 0,
+            "snore": 0
+        }
+
+    return Response(json.dumps(res, default=json_serial), mimetype='application/json')
 
 
-# TEST: curl -X POST -H "Content-Type: application/json" -d '{"state": true, "pillow": "lower"}' 127.0.0.1:8080/set_pillow_height
+@app.route('/snore', methods=['GET'])
+def get_snore():
+    time = get_formatted_datetime(json.loads(request.data.decode())['datetime'])
+    res = get_snore_data(time)
+
+    return Response(json.dumps(res, default=json_serial),  mimetype='application/json')
+
+
+@app.route('/insert_sound', methods=['POST'])
+def insert_sound():
+    data = json.loads(request.data.decode())
+    data['datetime'] = datetime.strptime(data['datetime'], "%Y-%m-%dT%H:%M:%S.000Z")
+    db_snore.insert_one(data)
+    print("inserted snore")
+
+    return "inserted snore"
+
+
+@app.route('/movement', methods=['GET'])
+def get_movement():
+    time = get_formatted_datetime(json.loads(request.data.decode())['datetime'])
+    res = get_weight_data(time)
+
+    return Response(json.dumps(res, default=json_serial),  mimetype='application/json')
+
+
+@app.route('/insert_weight', methods=['POST'])
+def insert_weight():
+    data = json.loads(request.data.decode())
+    data['datetime'] = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.000Z")  # to string
+    data['datetime'] = datetime.strptime(data['datetime'], "%Y-%m-%dT%H:%M:%S.000Z")  # to datetime
+    db_weight.insert_one(data)
+    print("inserted weight")
+
+    return "inserted weight"
+
+
 @app.route('/set_pillow_height', methods=['POST'])
 def set_pillow_height():
     data = json.loads(request.data.decode())
@@ -75,9 +191,9 @@ def set_pillow_height():
             requests.post('https://maker.ifttt.com/trigger/weight_sensor1_off/with/key/' + IFTTT_KEY)
     elif data['pillow'] == 'upper':
         if data['state']:
-            requests.post('https://maker.ifttt.com/trigger/weight_sensor2_on/with/key/' + IFTTT_KEY)
+            requests.post('https://maker.ifttt.com/trigger/weight_sensor2_on/with/key/' + IFTTT_KEY2)
         elif not data['state']:
-            requests.post('https://maker.ifttt.com/trigger/weight_sensor2_off/with/key/' + IFTTT_KEY)
+            requests.post('https://maker.ifttt.com/trigger/weight_sensor2_off/with/key/' + IFTTT_KEY2)
 
     return "adjusted"
 

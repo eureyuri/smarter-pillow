@@ -113,6 +113,8 @@ GET /snore
   "datetime": ""
 }
 ```
+with the datetime in the format `2017-10-13T10:53:53.000Z`
+
 Success response
 ```json
 [
@@ -144,20 +146,20 @@ Our database name is `smarter_pillow` and we have 2 collections: `weight` and `s
 The schema is as follows.
 
 #### weight
-```json
+```
 [
   {
-    "datetime": "",
+    "datetime": ISODate(""),
     "value": 0 
   }
 ]
 ```
 
 #### snore
-```json
+```
 [
   {
-    "datetime": "",
+    "datetime": ISODate(""),
     "loudness": 0,
     "snore": true || false
   }
