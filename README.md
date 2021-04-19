@@ -64,6 +64,7 @@ Currently, we only support max and min inflation.
 Internally, this is connected to IFTTT, which makes the call to Kasa API
 to turn on/off the air pump connected to the pillow. 
 ```
+POST /set_pillow_height
 {
   "pillow": "lower" || "upper",
   "state": true || false
