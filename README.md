@@ -48,16 +48,79 @@ POST /insert_weight
 }
 ```
 
+#### To add snore data to database
+```
+POST /insert_sound
+{
+  "datetime": "",
+  "loudness": 0,
+  "snore": true || false
+}
+```
+
 #### Set pillow height
 We can control the height of the two pillows separately.
 Currently, we only support max and min inflation. 
 Internally, this is connected to IFTTT, which makes the call to Kasa API
 to turn on/off the air pump connected to the pillow. 
 ```
+POST /set_pillow_height
 {
   "pillow": "lower" || "upper",
   "state": true || false
 }
+```
+
+#### Get overall sleep quality
+The sleep quality is determined by how often you move around your head on the pillow and snore.
+The movement can be seen if there is some variance in the value of the weight sensor.
+```
+GET /sleep_quality
+{
+  "datetime": ""
+}
+```
+Success response has the sleep quality in percentage
+```json
+{
+  "sleep_quality": 0.9,
+  "movement": 0.1,
+  "snore": 0.1
+}
+```
+
+#### Get movement data
+```
+GET /movement
+{
+  "datetime": ""
+}
+```
+Success response
+```json
+[
+  {
+    "datetime": "",
+    "movement": 0
+  }
+]
+```
+
+#### Get snore data
+```
+GET /snore
+{
+  "datetime": ""
+}
+```
+Success response
+```json
+[
+  {
+    "datetime": "",
+    "loudness": 0
+  }
+]
 ```
 
 ### ESP8266
@@ -77,21 +140,28 @@ the HX711 amplifier and make a post request with the collected weight data.
 We have a linux instance running on our AWS EC2 cloud. On the instance we have mongodb installed, which we use to 
 store our data.
 
-Our database name is `smarter_pillow` and we have 2 collections: `movement` and `snore`.
+Our database name is `smarter_pillow` and we have 2 collections: `weight` and `snore`.
 The schema is as follows.
 
-#### movement
+#### weight
 ```json
-{
-  
-}
+[
+  {
+    "datetime": "",
+    "value": 0 
+  }
+]
 ```
 
 #### snore
 ```json
-{
-  
-}
+[
+  {
+    "datetime": "",
+    "loudness": 0,
+    "snore": true || false
+  }
+]
 ```
 
 ## References
