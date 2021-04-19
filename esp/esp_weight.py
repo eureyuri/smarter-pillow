@@ -6,6 +6,7 @@ import json
 import uasyncio
 from env import WIFI_EESID, WIFI_PASS
 
+url_flask = '51c475da316b.ngrok.io'
 isOn = False
 
 # pin_OUT = Pin(12, Pin.IN)
@@ -38,12 +39,39 @@ def success_response(message=""):
 
 
 async def send_weight():
+    global isOn
+
     print('thread started')
     while isOn:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        host = socket.getaddrinfo(url_flask, 80)[0][4][0]
+        s.connect((host, 80))
         # hx711.tare()
         # value = hx711.read()
-        print('value')
+        value = 0
+
+        post_json = json.dumps({
+            "value": value
+        })
+        post = 'POST /insert_weight HTTP/1.1\r\nContent-length: %d\r\nContent-Type: application/json\r\n' \
+               'Host: %s\r\n\r\n%s' % (len(post_json), url_flask, post_json)
+        print(value)
+
+        try:
+            res = s.sendall(str.encode(post))
+        except Exception as e:
+            print('not sent...')
+            print(e)
+            isOn = False
+            s.close()
+            continue
+
+        if res is None:
+            print('sent!')
+
+        s.close()
         await uasyncio.sleep_ms(100)
+
     print('thread ended')
 
 

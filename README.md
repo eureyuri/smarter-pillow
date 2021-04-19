@@ -30,6 +30,23 @@ The user interacts with our android app. ...
 
 ### Python Flask Server
 The Flask server interfaces with the Android App and ESP8266 and communicates with our mongodb database on AWS EC2 linux instance.
+The API endpoints are as follows.
+
+#### Switch on/off weight sensor on ESP8266
+```
+POST /set_weight_sensor
+{
+  "state": true || false
+}
+```
+
+#### To add weight data to database
+```
+POST /insert_weight
+{
+  "value": 0
+}
+```
 
 ### ESP8266
 The ESP8266 chip is in charge of interfacing with the pressure sensor and sending the data to our backend Flask server. 
