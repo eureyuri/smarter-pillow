@@ -11,7 +11,7 @@ Insert weight
 curl -X POST -H "Content-Type: application/json" -d '{"value": 0}' 127.0.0.1:8080/insert_weight
 
 Get movement
-curl -X GET -H "Content-Type: application/json" -d '{"datetime": "2021-04-19T14:32:17.000Z"}' 127.0.0.1:8080/movement
+curl -X GET -H "Content-Type: application/json" -d '{"datetime": "2021-04-13T00:00:00.000Z"}' 127.0.0.1:8080/movement
 
 Get sleep quality
-curl -X GET -H "Content-Type: application/json" -d '{"datetime": "2021-04-19T14:32:17.000Z"}' 127.0.0.1:8080/sleep_quality
+curl -X GET -H "Content-Type: application/json" -d '{"datetime": "2021-04-19T00:00:00.000Z"}' 127.0.0.1:8080/sleep_quality

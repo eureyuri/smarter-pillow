@@ -20,11 +20,12 @@ ESP_URL = os.getenv('ESP_URL')
 # MongoDB Collections
 db_weight = None
 db_snore = None
+db_time = None
 
 
 # Had to change to accept TCP port 27017 for inbound
 def connect_to_mongo():
-    global db_weight, db_snore
+    global db_weight, db_snore, db_time
     try:
         uri = "mongodb://" + SSH_ADDRESS + ":27017"
         client = MongoClient(uri)
@@ -37,6 +38,7 @@ def connect_to_mongo():
         db = client.smarter_pillow
         db_weight = db.weight
         db_snore = db.snore
+        db_time = db.time
     except Exception as e:
         print("MongoDB connection failure: Please check the connection details")
         print(e)
@@ -59,7 +61,7 @@ def get_snore_data(time):
             '$gte': time,
             '$lte': time + timedelta(days=1)
         }
-    }, {'_id': False, 'snore': False})
+    }, {'_id': False})
 
     res_snore = []
     for document in cursor_snore:
@@ -91,7 +93,7 @@ def calculate_movement_percentage(data):
         if abs(prev_movement - current_movement) >= 0.5:
             movement_count += 1
         prev_movement = current_movement
-    return 1 - (movement_count / len(data))
+    return movement_count / len(data)
 
 
 def calculate_snore_percentage(data):
@@ -99,7 +101,7 @@ def calculate_snore_percentage(data):
     for d in data:
         if d['snore']:
             snore_count += 1
-    return 1 - (snore_count / len(data))
+    return snore_count / len(data)
 
 
 @app.route('/', methods=['GET'])
@@ -113,7 +115,8 @@ def set_weight_sensor():
     data = {
         'state': is_set_sensor
     }
-    requests.post(ESP_URL + '/set_get_weight', data=data, headers={'Content-Type': 'application/json'})
+    requests.post(ESP_URL + '/set_get_weight', data=json.dumps(data),
+                  headers={'Content-Type': 'application/json'})
     return "set get weight"
 
 
@@ -122,13 +125,20 @@ def sleep_quality():
     time = get_formatted_datetime(json.loads(request.data.decode())['datetime'])
     snore_data = get_snore_data(time)
     weight_data = get_weight_data(time)
+    time = db_time.find_one({
+        'datetime': {
+            '$gte': time,
+            '$lte': time + timedelta(days=1)
+        }
+    }, {'_id': False})
 
-    if len(snore_data) > 0 and len(weight_data > 0):
+    if len(snore_data) > 0 and len(weight_data) > 0:
         movement = calculate_movement_percentage(weight_data)
         snore = calculate_snore_percentage(snore_data)
         overall_quality = 1 - (movement + snore) / 2
 
         res = {
+            "time": time,
             "sleep_quality": overall_quality,
             "movement": movement,
             "snore": snore
@@ -136,11 +146,13 @@ def sleep_quality():
     else:
         # Not enough data to show
         res = {
+            "time": 0.0,
             "sleep_quality": 0,
             "movement": 0,
             "snore": 0
         }
 
+    print(res)
     return Response(json.dumps(res, default=json_serial), mimetype='application/json')
 
 
@@ -179,6 +191,34 @@ def insert_weight():
     print("inserted weight")
 
     return "inserted weight"
+
+
+@app.route('/mock_insert_weight', methods=['POST'])
+def mock_insert_weight():
+    data = json.loads(request.data.decode())
+    data['datetime'] = datetime.strptime(data['datetime'], "%Y-%m-%dT%H:%M:%S.000Z")
+    db_weight.insert_one(data)
+    print("inserted weight")
+
+    return "inserted weight"
+
+
+@app.route('/time', methods=['GET'])
+def get_sleep_time():
+    time = get_formatted_datetime(json.loads(request.data.decode())['datetime'])
+    res = get_weight_data(time)
+
+    return Response(json.dumps(res, default=json_serial),  mimetype='application/json')
+
+
+@app.route('/insert_time', methods=['POST'])
+def insert_sleep_time():
+    data = json.loads(request.data.decode())
+    data['datetime'] = datetime.strptime(data['datetime'], "%Y-%m-%dT%H:%M:%S.000Z")
+    db_time.insert_one(data)
+    print("inserted time")
+
+    return "inserted time"
 
 
 @app.route('/set_pillow_height', methods=['POST'])
