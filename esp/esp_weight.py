@@ -6,13 +6,13 @@ import json
 import uasyncio
 from env import WIFI_EESID, WIFI_PASS
 
-url_flask = '51c475da316b.ngrok.io'
+url_flask = 'ec2-18-206-197-126.compute-1.amazonaws.com'
 isOn = False
 
-# pin_OUT = Pin(12, Pin.IN)
-# pin_SCK = Pin(13, Pin.OUT)
-# hx711 = HX711(pin_SCK, pin_OUT)
-# hx711.set_gain(128)
+pin_OUT = Pin(12, Pin.IN)
+pin_SCK = Pin(13, Pin.OUT)
+hx711 = HX711(pin_SCK, pin_OUT)
+hx711.set_gain(128)
 
 
 def connect_wifi():
@@ -44,11 +44,10 @@ async def send_weight():
     print('thread started')
     while isOn:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        host = socket.getaddrinfo(url_flask, 80)[0][4][0]
-        s.connect((host, 80))
-        # hx711.tare()
-        # value = hx711.read()
-        value = 0
+        host = socket.getaddrinfo(url_flask, 8080)[0][4][0]
+        s.connect((host, 8080))
+        hx711.tare()
+        value = hx711.read()
 
         post_json = json.dumps({
             "value": value
