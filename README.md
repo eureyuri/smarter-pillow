@@ -202,10 +202,28 @@ The schema is as follows.
 ]
 ```
 
+We also run our Flask server in the background on EC2. We use the linux command `screen` for terminal multiplexer.
+We start `server.py` and detach by `ctrl+a d`. If we need to resume, we can `screen -r`
+```bash
+$ screen -S flask
+$ python3 server.py
+```
+Remember to also specify the environment variables
+```bash
+$ export MONGO_USERNAME=""
+$ export MONGO_PASS=""
+$ export IFTTT_KEY=''
+$ export IFTTT_KEY2=''
+$ export SSH_ADDRESS=''
+$ export ESP_URL=''
+```
+
 ## References
 - Library to interface with HX711 load cell amplifier for weight sensor 
   [robert-hh/hx711](https://github.com/robert-hh/hx711/tree/1ca0d87b58eb47f4810241a01e4181880e891b29)
 - Wiring the weight sensor with HX711: https://circuitjournal.com/50kg-load-cells-with-HX711
+- Deploying a Flask app on EC2 https://www.codementor.io/@jqn/deploy-a-flask-app-on-aws-ec2-13hp1ilqy2
+- Linux screen command: https://linuxize.com/post/how-to-use-linux-screen/
 
 ## Authors
 - Eurey Noguchi
