@@ -58,6 +58,15 @@ POST /insert_sound
 }
 ```
 
+#### To add time slept for a day to database
+```
+POST /insert_time
+{
+  "datetime": "",
+  "time": 0.0,
+}
+```
+
 #### Set pillow height
 We can control the height of the two pillows separately.
 Currently, we only support max and min inflation. 
@@ -83,6 +92,7 @@ GET /sleep_quality
 Success response has the sleep quality in percentage
 ```json
 {
+  "time": 0.0,
   "sleep_quality": 0.9,
   "movement": 0.1,
   "snore": 0.1
@@ -125,6 +135,22 @@ Success response
 ]
 ```
 
+#### Get time slept data
+```
+GET /time
+{
+  "datetime": ""
+}
+```
+
+Success response
+```json
+{
+  "time": 0.0
+}
+```
+
+
 ### ESP8266
 The ESP8266 chip is in charge of interfacing with the pressure sensor and sending the data to our backend Flask server. 
 Therefore, it serves both as a client and a server. As a server, it exposes the endpoint
@@ -142,7 +168,7 @@ the HX711 amplifier and make a post request with the collected weight data.
 We have a linux instance running on our AWS EC2 cloud. On the instance we have mongodb installed, which we use to 
 store our data.
 
-Our database name is `smarter_pillow` and we have 2 collections: `weight` and `snore`.
+Our database name is `smarter_pillow` and we have 3 collections: `weight`, `snore`, and `time`.
 The schema is as follows.
 
 #### weight
@@ -162,6 +188,16 @@ The schema is as follows.
     "datetime": ISODate(""),
     "loudness": 0,
     "snore": true || false
+  }
+]
+```
+
+#### time
+```
+[
+  {
+    "datetime": ISODate(""),
+    "time": 0.0
   }
 ]
 ```
