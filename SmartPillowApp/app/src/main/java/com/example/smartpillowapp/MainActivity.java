@@ -34,6 +34,11 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         // Bottom nav
         bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setOnNavigationItemSelectedListener(this);
+
+        // populate the screen on load with the first fragment
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.flFragment, new FirstFragment());
+        ft.commit();
     }
 
     @Override
