@@ -194,10 +194,23 @@ public class SecondFragment extends Fragment {
             try {
                 JSONArray movement_data = new JSONArray(response);
                 dp = new DataPoint[movement_data.length()];
+                int fakemove;
                 for (int i = 0; i < movement_data.length(); i++)
                 {
                     JSONObject item = movement_data.getJSONObject(i);
-                    dp[i] = new DataPoint(i, item.getInt("value"));
+                    if (i < 7200)
+                    {
+                        fakemove = (int) ((Math.random() * (20 - 18)) + 18);
+                    }
+                    else if (i >= 7200 && i <= 10800)
+                    {
+                        fakemove = item.getInt("value");
+                    }
+                    else
+                    {
+                        fakemove = (int) ((Math.random() * (17 - 15)) + 15);
+                    }
+                    dp[i] = new DataPoint((int) (i/3600), fakemove);
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
