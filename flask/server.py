@@ -120,7 +120,7 @@ def set_weight_sensor():
     return "set get weight"
 
 
-@app.route('/sleep_quality', methods=['GET'])
+@app.route('/sleep_quality', methods=['GET', 'POST'])
 def sleep_quality():
     time = get_formatted_datetime(json.loads(request.data.decode())['datetime'])
     snore_data = get_snore_data(time)
@@ -156,7 +156,7 @@ def sleep_quality():
     return Response(json.dumps(res, default=json_serial), mimetype='application/json')
 
 
-@app.route('/snore', methods=['GET'])
+@app.route('/snore', methods=['GET', 'POST'])
 def get_snore():
     time = get_formatted_datetime(json.loads(request.data.decode())['datetime'])
     res = get_snore_data(time)
@@ -174,7 +174,7 @@ def insert_sound():
     return "inserted snore"
 
 
-@app.route('/movement', methods=['GET'])
+@app.route('/movement', methods=['GET', 'POST'])
 def get_movement():
     time = get_formatted_datetime(json.loads(request.data.decode())['datetime'])
     res = get_weight_data(time)
@@ -203,7 +203,7 @@ def mock_insert_weight():
     return "inserted weight"
 
 
-@app.route('/time', methods=['GET'])
+@app.route('/time', methods=['GET', 'POST'])
 def get_sleep_time():
     time = get_formatted_datetime(json.loads(request.data.decode())['datetime'])
     res = get_weight_data(time)
@@ -240,4 +240,4 @@ def set_pillow_height():
 
 if __name__ == "__main__":
     connect_to_mongo()
-    app.run(debug=True, host="0.0.0.0", port=80)
+    app.run(debug=True, host="0.0.0.0", port=8080)
