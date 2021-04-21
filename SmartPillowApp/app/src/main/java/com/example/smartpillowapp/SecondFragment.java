@@ -55,6 +55,7 @@ public class SecondFragment extends Fragment {
     private String [] permissions = {Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
     public static LineGraphSeries<DataPoint> series;
+    public static LineGraphSeries<DataPoint> series2;
     public static View viewSecondFragment;
 
     private Button recordButton = null;
@@ -91,9 +92,6 @@ public class SecondFragment extends Fragment {
 
     MyRunnable myRunnable = new MyRunnable();
     private Thread thread = new Thread(myRunnable);
-
-//
-//    String fileName = "HELLO";
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -152,13 +150,6 @@ public class SecondFragment extends Fragment {
         Log.i("getSnoreRecord - i_msg", j_msg);
         NetworkAsyncTask asyncTask = new NetworkAsyncTask(root, "/snore", j_msg, "POST");
 
-//         new LineGraphSeries<DataPoint> (new DataPoint[] {
-//                new DataPoint(0, 1),
-//                new DataPoint(1, 5),
-//                new DataPoint(2, 3),
-//                new DataPoint(3, 2),
-//                new DataPoint(4, 6)
-//        });
         DataPoint[] dp = null;
         try {
             String response = asyncTask.execute().get();
@@ -171,13 +162,44 @@ public class SecondFragment extends Fragment {
                     JSONObject item = snore_data.getJSONObject(i);
                     dp[i] = new DataPoint(i, item.getInt("loudness"));
 //                    Log.i("getSnoreRecord - datetime+db", String.valueOf(item.getInt("loudness")));
-
                 }
 
             } catch (JSONException e) {
                 e.printStackTrace();
             }
             System.out.println(response);
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return new LineGraphSeries<DataPoint>(dp);
+    }
+
+    public static LineGraphSeries<DataPoint> getMovementRecord(int year, int month, int day) {
+        String send = "";
+        if (month < 10) {
+            send = Integer.toString(year) + "-0" + Integer.toString(month) + "-" + Integer.toString(day) + "T00:00:00.000Z";
+        } else {
+            send = Integer.toString(year) + "-" + Integer.toString(month) + "-" + Integer.toString(day) + "T00:00:00.000Z";
+        }
+
+        String j_msg = "{\"datetime\": \"" + send + "\"}";
+        NetworkAsyncTask asyncTask = new NetworkAsyncTask(root, "/movement", j_msg, "POST");
+        DataPoint[] dp = null;
+        try {
+            String response = asyncTask.execute().get();
+            try {
+                JSONArray movement_data = new JSONArray(response);
+                dp = new DataPoint[movement_data.length()];
+                for (int i = 0; i < movement_data.length(); i++)
+                {
+                    JSONObject item = movement_data.getJSONObject(i);
+                    dp[i] = new DataPoint(i, item.getInt("value"));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         } catch (ExecutionException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -205,10 +227,12 @@ public class SecondFragment extends Fragment {
             Log.i("onDateSet_body", Integer.toString(day));
             // Do something with the date chosen by the user
             SecondFragment.series = getSnoreRecord(year, month+1, day);
-            series.setTitle("Random Curve 1");
+            SecondFragment.series2 = getMovementRecord(year, month+1, day);
             GraphView graph = (GraphView) viewSecondFragment.findViewById(R.id.graph);
+            GraphView graph2 = (GraphView) viewSecondFragment.findViewById(R.id.graph2);
             graph.getGridLabelRenderer().setHorizontalLabelsColor(Color.GREEN);
             graph.addSeries(SecondFragment.series);
+            graph2.addSeries(SecondFragment.series2);
         }
     }
 
