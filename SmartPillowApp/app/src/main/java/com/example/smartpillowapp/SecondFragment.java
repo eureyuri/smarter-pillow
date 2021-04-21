@@ -239,6 +239,8 @@ public class SecondFragment extends Fragment {
             graph.getGridLabelRenderer().setVerticalLabelsColor(Color.RED);
             graph.addSeries(SecondFragment.series);
             graph2.addSeries(SecondFragment.series2);
+            graph2.getGridLabelRenderer().setHorizontalLabelsColor(Color.GREEN);
+            graph2.getGridLabelRenderer().setVerticalLabelsColor(Color.RED);
         }
     }
 
