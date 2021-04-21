@@ -38,6 +38,7 @@ public class FirstFragment extends Fragment implements TimePickerDialog.OnTimeSe
     private TextView hoursSleptText;
     private TextView snoreText;
     private TextView movementText;
+    private int sleepQuality = 0;
 
     private String root = "http://ec2-18-206-197-126.compute-1.amazonaws.com:8080";
 
@@ -59,6 +60,9 @@ public class FirstFragment extends Fragment implements TimePickerDialog.OnTimeSe
 
         alarmText = view.findViewById(R.id.alarm_text);
         alarmTime = view.findViewById(R.id.alarm);
+        hoursSleptText = view.findViewById(R.id.hours_slept);
+        movementText = view.findViewById(R.id.movement);
+        snoreText = view.findViewById(R.id.snore);
 
         Button buttonSetAlarm = view.findViewById(R.id.set_alarm_brn);
         buttonSetAlarm.setOnClickListener(new View.OnClickListener() {
@@ -88,7 +92,7 @@ public class FirstFragment extends Fragment implements TimePickerDialog.OnTimeSe
         pieChart.setTouchEnabled(false);
 
         // Text inside pie chart
-        pieChart.setCenterText(Integer.toString(95) + '%');
+        pieChart.setCenterText(Integer.toString(sleepQuality) + '%');
         pieChart.setCenterTextSize(40);
         pieChart.setCenterTextRadiusPercent(90);
         pieChart.setCenterTextColor(Color.rgb(48, 108, 189));
@@ -97,8 +101,8 @@ public class FirstFragment extends Fragment implements TimePickerDialog.OnTimeSe
         pieChart.setHoleColor(Color.argb(0,0,0,0));
         pieChart.setHoleRadius(70);
 
-        pieEntryList.add(new PieEntry(95,"slept"));
-        pieEntryList.add(new PieEntry(5,"not slept"));
+        pieEntryList.add(new PieEntry(sleepQuality,"slept"));
+        pieEntryList.add(new PieEntry(100 - sleepQuality,"not slept"));
         PieDataSet pieDataSet = new PieDataSet(pieEntryList,"quality");
         pieDataSet.setColors(new int[]{Color.rgb(48, 108, 189), Color.rgb(0, 0, 0)});
         pieData = new PieData(pieDataSet);
@@ -150,22 +154,16 @@ public class FirstFragment extends Fragment implements TimePickerDialog.OnTimeSe
                 JSONObject res = new JSONObject(response);
                 JSONObject time = res.getJSONObject("time");
                 String  sleepTime = time.getString("time");
-                String quality = res.getString("sleep_quality");
                 String movement = res.getString("movement");
                 String snore = res.getString("snore");
+                sleepQuality = Math.round(Float.parseFloat(res.getString("sleep_quality")) * 100);
 
-                System.out.println("got");
                 hoursSleptText.setText(sleepTime);
-                movementText.setText(movement);
-                snoreText.setText(snore);
+                movementText.setText(String.valueOf(Math.round(Float.parseFloat(movement) * 100)) + '%');
+                snoreText.setText(String.valueOf(Math.round(Float.parseFloat(snore) * 100)) + '%');
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
-
-//            String[] tokens = response.split(":");
-            System.out.println(response);
-//            String token = tokens[2].trim().substring(1, tokens[2].length()-3);
         } catch (ExecutionException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
