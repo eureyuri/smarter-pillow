@@ -5,6 +5,7 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.AsyncTask;
@@ -149,46 +150,40 @@ public class SecondFragment extends Fragment {
 
         String j_msg = "{\"datetime\": \"" + send + "\"}";
         Log.i("getSnoreRecord - i_msg", j_msg);
-//        String j_msg2 = "{\"datetime\": \"2021-04-20T00:00:00.000Z\"}";
-//        NetworkAsyncTask asyncTask = new NetworkAsyncTask(root, "/snore", j_msg, "POST");
-        return new LineGraphSeries<DataPoint> (new DataPoint[] {
-                new DataPoint(0, 1),
-                new DataPoint(1, 5),
-                new DataPoint(2, 3),
-                new DataPoint(3, 2),
-                new DataPoint(4, 6)
-        });
-//        try {
-////            String response = asyncTask.execute().get();
-//            try {
-//
-////                JSONArray snore_data = new JSONArray(response);
-//                series = new LineGraphSeries<DataPoint> (new DataPoint[] {
-//                        new DataPoint(0, 1),
-//                        new DataPoint(1, 5),
-//                        new DataPoint(2, 3),
-//                        new DataPoint(3, 2),
-//                        new DataPoint(4, 6)
-//                });
-//                for (int i = 0; i < snore_data.length(); i++)
-//                {
-//                    JSONObject item = snore_data.getJSONObject(i);
-//
-//
-//                    Log.i("getSnoreRecord - datetime+db", String.valueOf(item.getInt("loudness")));
-//
-//                }
-//                JSONObject time = res.getJSONObject("time");
+        NetworkAsyncTask asyncTask = new NetworkAsyncTask(root, "/snore", j_msg, "POST");
 
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
-//            System.out.println(response);
-//        } catch (ExecutionException e) {
-//            e.printStackTrace();
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
+//         new LineGraphSeries<DataPoint> (new DataPoint[] {
+//                new DataPoint(0, 1),
+//                new DataPoint(1, 5),
+//                new DataPoint(2, 3),
+//                new DataPoint(3, 2),
+//                new DataPoint(4, 6)
+//        });
+        DataPoint[] dp = null;
+        try {
+            String response = asyncTask.execute().get();
+            try {
+
+                JSONArray snore_data = new JSONArray(response);
+                dp = new DataPoint[snore_data.length()];
+                for (int i = 0; i < snore_data.length(); i++)
+                {
+                    JSONObject item = snore_data.getJSONObject(i);
+                    dp[i] = new DataPoint(i, item.getInt("loudness"));
+//                    Log.i("getSnoreRecord - datetime+db", String.valueOf(item.getInt("loudness")));
+
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            System.out.println(response);
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return new LineGraphSeries<DataPoint>(dp);
     }
 
     public static class DatePickerFragment extends DialogFragment
@@ -210,8 +205,9 @@ public class SecondFragment extends Fragment {
             Log.i("onDateSet_body", Integer.toString(day));
             // Do something with the date chosen by the user
             SecondFragment.series = getSnoreRecord(year, month+1, day);
-            Log.i("onDateSet_series", String.valueOf(SecondFragment.series));
+            series.setTitle("Random Curve 1");
             GraphView graph = (GraphView) viewSecondFragment.findViewById(R.id.graph);
+            graph.getGridLabelRenderer().setHorizontalLabelsColor(Color.GREEN);
             graph.addSeries(SecondFragment.series);
         }
     }
