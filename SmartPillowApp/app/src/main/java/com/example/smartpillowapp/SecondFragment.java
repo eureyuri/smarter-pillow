@@ -30,6 +30,10 @@ import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
@@ -37,6 +41,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
 
 public class SecondFragment extends Fragment {
@@ -48,11 +53,12 @@ public class SecondFragment extends Fragment {
     private boolean permissionToRecordAccepted = false;
     private String [] permissions = {Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
-    private LineGraphSeries<DataPoint> series;
+    public static LineGraphSeries<DataPoint> series;
+
     private Button recordButton = null;
     boolean mStartRecording = true;
     private MediaRecorder recorder = null;
-    private String root = "http://ec2-18-206-197-126.compute-1.amazonaws.com:8080";
+    public static String root = "http://ec2-18-206-197-126.compute-1.amazonaws.com:8080";
 
     private class MyRunnable implements Runnable {
 
@@ -128,18 +134,60 @@ public class SecondFragment extends Fragment {
         recorder.release();
         recorder = null;
     }
-    private void getSnoreRecord() {
+
+    public static LineGraphSeries<DataPoint> getSnoreRecord(int year, int month, int day) {
         Log.i("getSnoreRecord", "getSnoreRecord called!");
-        String j_msg = "{\"datetime\": \"2021-04-20T00:00:00.000Z\"}";
-        NetworkAsyncTask asyncTask = new NetworkAsyncTask(root, "/snore", j_msg, "POST");
-        try {
-            String response = asyncTask.execute().get();
-            System.out.println(response);
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        String send = "";
+        if (month < 10){
+            send = Integer.toString(year) + "-0" + Integer.toString(month) + "-" + Integer.toString(day) + "T00:00:00.000Z";
         }
+        else
+        {
+            send = Integer.toString(year) + "-" + Integer.toString(month) + "-" + Integer.toString(day) + "T00:00:00.000Z";
+        }
+
+        String j_msg = "{\"datetime\": \"" + send + "\"}";
+        Log.i("getSnoreRecord - i_msg", j_msg);
+//        String j_msg2 = "{\"datetime\": \"2021-04-20T00:00:00.000Z\"}";
+//        NetworkAsyncTask asyncTask = new NetworkAsyncTask(root, "/snore", j_msg, "POST");
+        return new LineGraphSeries<DataPoint> (new DataPoint[] {
+                new DataPoint(0, 1),
+                new DataPoint(1, 5),
+                new DataPoint(2, 3),
+                new DataPoint(3, 2),
+                new DataPoint(4, 6)
+        });
+//        try {
+////            String response = asyncTask.execute().get();
+//            try {
+//
+////                JSONArray snore_data = new JSONArray(response);
+//                series = new LineGraphSeries<DataPoint> (new DataPoint[] {
+//                        new DataPoint(0, 1),
+//                        new DataPoint(1, 5),
+//                        new DataPoint(2, 3),
+//                        new DataPoint(3, 2),
+//                        new DataPoint(4, 6)
+//                });
+//                for (int i = 0; i < snore_data.length(); i++)
+//                {
+//                    JSONObject item = snore_data.getJSONObject(i);
+//
+//
+//                    Log.i("getSnoreRecord - datetime+db", String.valueOf(item.getInt("loudness")));
+//
+//                }
+//                JSONObject time = res.getJSONObject("time");
+
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//            System.out.println(response);
+//        } catch (ExecutionException e) {
+//            e.printStackTrace();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
     }
 
     public static class DatePickerFragment extends DialogFragment
@@ -159,8 +207,11 @@ public class SecondFragment extends Fragment {
         public void onDateSet(DatePicker view, int year, int month, int day) {
             Log.i("onDateSet","onDateSet called!");
             Log.i("onDateSet_body", Integer.toString(day));
-
             // Do something with the date chosen by the user
+            series = getSnoreRecord(year, month+1, day);
+            Log.i("onDateSet_series", String.valueOf(series));
+            GraphView graph = (GraphView) view.findViewById(R.id.graph);
+            graph.addSeries(series);
         }
     }
 
@@ -181,17 +232,7 @@ public class SecondFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_second, container, false);
         ActivityCompat.requestPermissions(getActivity(), permissions, REQUEST_RECORD_AUDIO_PERMISSION);
 
-        series = new LineGraphSeries<DataPoint>(new DataPoint[] {
-                new DataPoint(0, 1),
-                new DataPoint(1, 5),
-                new DataPoint(2, 3),
-                new DataPoint(3, 2),
-                new DataPoint(4, 6)
-        });
         recordButton = view.findViewById(R.id.start);
-
-        GraphView graph = (GraphView) view.findViewById(R.id.graph);
-        graph.addSeries(series);
 //        graph.getViewport().setXAxisBoundsManual(true);
 //        graph.getViewport().setMinX(0);
 //        graph.getViewport().setMaxX(maxPoints);
@@ -230,6 +271,7 @@ public class SecondFragment extends Fragment {
                 showDatePickerDialog();
             }
         });
+
     }
 
     @Override
