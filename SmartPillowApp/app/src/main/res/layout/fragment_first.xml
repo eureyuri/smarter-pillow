@@ -7,24 +7,190 @@
     tools:context=".FirstFragment">
 
     <TextView
-        android:id="@+id/textview_first"
+        android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/hello_first_fragment"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/title"
         android:textColor="@color/grey"
-        app:layout_constraintBottom_toTopOf="@id/button_first"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:textSize="30sp"
+        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/button_first"
-        android:layout_width="wrap_content"
+    <TextView
+        android:id="@+id/alarm"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/next"
+        android:layout_marginTop="128dp"
+        android:text="@string/default_time"
+        android:gravity="center"
+        android:textColor="@color/grey"
+        android:textSize="80sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.028"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/time" />
+
+    <TextView
+        android:id="@+id/alarm_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="120dp"
+        android:text="@string/default_alarm_text"
+        android:gravity="center"
+        android:textColor="@color/grey"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.006"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/time" />
+
+    <Button
+        android:id="@+id/cancel_alarm_btn"
+        android:layout_width="156dp"
+        android:layout_height="46dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/rounded_corner"
+        android:text="@string/cancel_alarm"
+        android:textColor="#F1F1F1"
+        android:textSize="13sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintHorizontal_bias="0.133"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textview_first" />
+        app:layout_constraintTop_toBottomOf="@+id/alarm"
+        app:layout_constraintVertical_bias="0.0"
+        app:strokeColor="#FFFFFF" />
+
+    <Button
+        android:id="@+id/set_alarm_brn"
+        android:layout_width="156dp"
+        android:layout_height="46dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/rounded_corner"
+        android:text="@string/set_alarm"
+        android:textColor="#F1F1F1"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.866"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/alarm"
+        app:layout_constraintVertical_bias="0.0"
+        app:strokeColor="#FFFFFF" />
+
+    <TextClock
+        android:id="@+id/time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginTop="68dp"
+        android:format24Hour="HH:mm"
+        android:textColor="@color/grey"
+        android:textSize="80sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/yesterday_quality"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="32dp"
+        android:text="@string/yesterday"
+        android:textColor="@color/grey"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cancel_alarm_btn" />
+
+    <com.github.mikephil.charting.charts.PieChart
+        android:id="@+id/pieChart"
+        android:layout_width="232dp"
+        android:layout_height="215dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/yesterday_quality" />
+
+    <TextView
+        android:id="@+id/hours_slept_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="243dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/hours_slept"
+        android:textColor="@color/grey"
+        app:layout_constraintStart_toStartOf="@+id/pieChart"
+        app:layout_constraintTop_toBottomOf="@+id/yesterday_quality" />
+
+    <TextView
+        android:id="@+id/hours_slept"
+        android:layout_width="117dp"
+        android:layout_height="23dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text="0"
+        android:textColor="@color/grey"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@+id/pieChart"
+        app:layout_constraintTop_toBottomOf="@+id/hours_slept_label" />
+
+    <TextView
+        android:id="@+id/snore"
+        android:layout_width="117dp"
+        android:layout_height="23dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text="0%"
+        android:textColor="@color/grey"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@+id/pieChart"
+        app:layout_constraintTop_toBottomOf="@+id/snore_label" />
+
+    <TextView
+        android:id="@+id/movement"
+        android:layout_width="117dp"
+        android:layout_height="23dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text="0%"
+        android:textColor="@color/grey"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@+id/pieChart"
+        app:layout_constraintTop_toBottomOf="@+id/movement_label" />
+
+    <TextView
+        android:id="@+id/snore_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/snore"
+        android:textColor="@color/grey"
+        app:layout_constraintStart_toEndOf="@+id/pieChart"
+        app:layout_constraintTop_toBottomOf="@+id/hours_slept" />
+
+    <TextView
+        android:id="@+id/movement_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="19dp"
+        android:text="@string/movement"
+        android:textColor="@color/grey"
+        app:layout_constraintStart_toEndOf="@+id/pieChart"
+        app:layout_constraintTop_toBottomOf="@+id/snore" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

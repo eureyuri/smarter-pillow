@@ -1,5 +1,6 @@
 package com.example.smartpillowapp;
 
+import android.app.TimePickerDialog;
 import android.os.Bundle;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -21,15 +22,21 @@ import android.view.View;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TimePicker;
 
-public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener, TimePickerDialog.OnTimeSetListener {
 
     private BottomNavigationView bottomNavigationView;
+    private FirstFragment firstFragment;
+    private SecondFragment secondFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        firstFragment = new FirstFragment();
+        secondFragment = new SecondFragment();
 
         // Bottom nav
         bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottomNavigationView);
@@ -37,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
         // populate the screen on load with the first fragment
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.flFragment, new FirstFragment());
+        ft.replace(R.id.flFragment, firstFragment);
         ft.commit();
     }
 
@@ -46,11 +53,11 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         Fragment fragment = null;
         switch (item.getItemId()) {
             case R.id.home: {
-                fragment = new FirstFragment();
+                fragment = firstFragment;
                 break;
             }
             case R.id.data: {
-                fragment = new SecondFragment();
+                fragment = secondFragment;
                 break;
             }
         }
@@ -58,5 +65,10 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         ft.replace(R.id.flFragment, fragment);
         ft.commit();
         return true;
+    }
+
+    @Override
+    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+        firstFragment.onTimeSet(view, hourOfDay, minute);
     }
 }
