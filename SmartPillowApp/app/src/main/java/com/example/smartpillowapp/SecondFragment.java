@@ -46,9 +46,38 @@ public class SecondFragment extends Fragment {
     private Button recordButton = null;
     boolean mStartRecording = true;
     private MediaRecorder recorder = null;
-    private Thread thread;
 
-    String fileName = "HELLO";
+    private class MyRunnable implements Runnable {
+
+        private boolean doStop = false;
+
+        public synchronized void doStop() {
+            this.doStop = true;
+        }
+
+        private synchronized boolean keepRunning() {
+            return this.doStop == false;
+        }
+
+        @Override
+        public void run() {
+            while(!Thread.interrupted()) {
+//                try {
+//                    Thread.sleep(100);
+//                } catch (InterruptedException e) {
+//                    // We've been interrupted: no more messages.
+//                    Log.i("thread fail",e.toString());
+//                }
+                float volume = recorder.getMaxAmplitude();
+                Log.i("another thread", String.valueOf(volume));
+            }
+        }
+    }
+
+    MyRunnable myRunnable = new MyRunnable();
+    private Thread thread = new Thread(myRunnable);
+
+//    String fileName = "HELLO";
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -84,35 +113,6 @@ public class SecondFragment extends Fragment {
         }
         recorder.start();
     }
-//    private void startListenAudio() {
-//        thread = new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                while (isThreadRun) {
-//                    try {
-//                        if(bListener) {
-//                            volume = mRecorder.getMaxAmplitude();  //Get the sound pressure value
-//                            if(volume > 0 && volume < 1000000) {
-//                                World.setDbCount(20 * (float)(Math.log10(volume)));  //Change the sound pressure value to the decibel value
-//                                // Update with thread
-//                                Message message = new Message();
-//                                message.what = 1;
-//                                handler.sendMessage(message);
-//                            }
-//                        }
-//                        if(refreshed){
-//                            Thread.sleep(1200);
-//                            refreshed=false;
-//                        }else{
-//                            Thread.sleep(200);
-//                        }
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                        bListener = false;
-//                    }
-//                }
-//            }
-//        });
 
     private void stopRecording() {
         Log.i("stopRecording","stopRecording called!");
@@ -153,15 +153,35 @@ public class SecondFragment extends Fragment {
         view.findViewById(R.id.start).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onRecord(mStartRecording);
+
                 if (mStartRecording) {
                     recordButton.setText("Stop recording");
+                    onRecord(mStartRecording);
+                    thread.start();
                 } else {
                     recordButton.setText("Start recording");
+//                    myRunnable.doStop();
+//                    try {
+//                        thread.sleep(100);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+                    thread.interrupt();
+
+                    onRecord(mStartRecording);
                 }
                 mStartRecording = !mStartRecording;
             }
         });
+
+//        view.findViewById(R.id.stop);
+//        view.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                thread.interrupt();
+//
+//            }
+//        });
     }
 
     @Override
