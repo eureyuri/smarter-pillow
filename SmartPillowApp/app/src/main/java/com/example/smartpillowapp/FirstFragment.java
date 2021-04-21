@@ -23,18 +23,23 @@ import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
-import com.github.mikephil.charting.utils.ColorTemplate;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-
-import static androidx.core.content.ContextCompat.getSystemService;
+import java.util.concurrent.ExecutionException;
 
 public class FirstFragment extends Fragment implements TimePickerDialog.OnTimeSetListener {
     private TextView alarmText;
     private TextView alarmTime;
+    private TextView hoursSleptText;
+    private TextView snoreText;
+    private TextView movementText;
+
+    private String root = "http://ec2-18-206-197-126.compute-1.amazonaws.com:8080";
 
     PieChart pieChart;
     PieData pieData;
@@ -71,6 +76,8 @@ public class FirstFragment extends Fragment implements TimePickerDialog.OnTimeSe
                 cancelAlarm();
             }
         });
+
+        getOverallQuality();
 
         pieEntryList = new ArrayList<>();
         // Pie chart
@@ -132,5 +139,37 @@ public class FirstFragment extends Fragment implements TimePickerDialog.OnTimeSe
         PendingIntent pendingIntent = PendingIntent.getBroadcast(getActivity(), 1, intent, 0);
         alarmManager.cancel(pendingIntent);
         alarmText.setText("Alarm not set");
+    }
+
+    private void getOverallQuality() {
+        String j_msg = "{\"datetime\": \"2021-04-20T00:00:00.000Z\"}";
+        NetworkAsyncTask obj = new NetworkAsyncTask(root, "/sleep_quality", j_msg, "POST");
+        try {
+            String response = obj.execute().get();
+            try {
+                JSONObject res = new JSONObject(response);
+                JSONObject time = res.getJSONObject("time");
+                String  sleepTime = time.getString("time");
+                String quality = res.getString("sleep_quality");
+                String movement = res.getString("movement");
+                String snore = res.getString("snore");
+
+                System.out.println("got");
+                hoursSleptText.setText(sleepTime);
+                movementText.setText(movement);
+                snoreText.setText(snore);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+
+//            String[] tokens = response.split(":");
+            System.out.println(response);
+//            String token = tokens[2].trim().substring(1, tokens[2].length()-3);
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
