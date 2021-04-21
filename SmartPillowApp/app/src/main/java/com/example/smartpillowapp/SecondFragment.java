@@ -49,8 +49,6 @@ public class SecondFragment extends Fragment {
 
     private LineGraphSeries<DataPoint> series;
     private Button recordButton = null;
-    private int y,m,d;
-
     boolean mStartRecording = true;
     private MediaRecorder recorder = null;
 
@@ -84,6 +82,8 @@ public class SecondFragment extends Fragment {
     MyRunnable myRunnable = new MyRunnable();
     private Thread thread = new Thread(myRunnable);
 
+//
+//    String fileName = "HELLO";
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -163,7 +163,6 @@ public class SecondFragment extends Fragment {
             Bundle savedInstanceState
     ) {
         View view = inflater.inflate(R.layout.fragment_second, container, false);
-        Button calendar_picker = view.findViewById(R.id.pick_date);
         ActivityCompat.requestPermissions(getActivity(), permissions, REQUEST_RECORD_AUDIO_PERMISSION);
 
         series = new LineGraphSeries<DataPoint>(new DataPoint[] {
@@ -226,5 +225,3 @@ public class SecondFragment extends Fragment {
         }
     }
 }
-
-
