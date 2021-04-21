@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.Calendar;
+import java.util.concurrent.ExecutionException;
 
 public class SecondFragment extends Fragment {
 
@@ -51,6 +52,7 @@ public class SecondFragment extends Fragment {
     private Button recordButton = null;
     boolean mStartRecording = true;
     private MediaRecorder recorder = null;
+    private String root = "http://ec2-18-206-197-126.compute-1.amazonaws.com:8080";
 
     private class MyRunnable implements Runnable {
 
@@ -126,6 +128,19 @@ public class SecondFragment extends Fragment {
         recorder.release();
         recorder = null;
     }
+    private void getSnoreRecord() {
+        Log.i("getSnoreRecord", "getSnoreRecord called!");
+        String j_msg = "{\"datetime\": \"2021-04-20T00:00:00.000Z\"}";
+        NetworkAsyncTask asyncTask = new NetworkAsyncTask(root, "/snore", j_msg, "POST");
+        try {
+            String response = asyncTask.execute().get();
+            System.out.println(response);
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
     public static class DatePickerFragment extends DialogFragment
             implements DatePickerDialog.OnDateSetListener {
@@ -144,6 +159,7 @@ public class SecondFragment extends Fragment {
         public void onDateSet(DatePicker view, int year, int month, int day) {
             Log.i("onDateSet","onDateSet called!");
             Log.i("onDateSet_body", Integer.toString(day));
+
             // Do something with the date chosen by the user
         }
     }
