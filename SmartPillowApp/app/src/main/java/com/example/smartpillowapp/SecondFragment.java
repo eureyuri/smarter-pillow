@@ -59,6 +59,7 @@ public class SecondFragment extends Fragment {
     public static LineGraphSeries<DataPoint> series2;
     public static View viewSecondFragment;
 
+    private static TextView sleepText;
     private Button recordButton = null;
     boolean mStartRecording = true;
     private MediaRecorder recorder = null;
@@ -210,6 +211,33 @@ public class SecondFragment extends Fragment {
         return new LineGraphSeries<DataPoint>(dp);
     }
 
+    private static void getQuality(int year, int month, int day) {
+        String send = "";
+        if (month < 10) {
+            send = Integer.toString(year) + "-0" + Integer.toString(month) + "-" + Integer.toString(day) + "T00:00:00.000Z";
+        } else {
+            send = Integer.toString(year) + "-" + Integer.toString(month) + "-" + Integer.toString(day) + "T00:00:00.000Z";
+        }
+
+        String j_msg = "{\"datetime\": \"" + send + "\"}";
+        NetworkAsyncTask obj = new NetworkAsyncTask(root, "/sleep_quality", j_msg, "POST");
+        try {
+            String response = obj.execute().get();
+            try {
+                JSONObject res = new JSONObject(response);
+                JSONObject time = res.getJSONObject("time");
+                String  sleepTime = time.getString("time");
+                sleepText.setText(sleepTime);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static class DatePickerFragment extends DialogFragment
             implements DatePickerDialog.OnDateSetListener {
         int year, month, day;
@@ -230,6 +258,7 @@ public class SecondFragment extends Fragment {
             // Do something with the date chosen by the user
             SecondFragment.series = getSnoreRecord(year, month+1, day);
             SecondFragment.series2 = getMovementRecord(year, month+1, day);
+            getQuality(year, month+1, day);
             GraphView graph = (GraphView) viewSecondFragment.findViewById(R.id.graph);
             GraphView graph2 = (GraphView) viewSecondFragment.findViewById(R.id.graph2);
             GridLabelRenderer gridLabel = graph.getGridLabelRenderer();
@@ -262,6 +291,7 @@ public class SecondFragment extends Fragment {
         ActivityCompat.requestPermissions(getActivity(), permissions, REQUEST_RECORD_AUDIO_PERMISSION);
 
         recordButton = viewSecondFragment.findViewById(R.id.start);
+        sleepText = viewSecondFragment.findViewById(R.id.time_slept_val);
 //        graph.getViewport().setXAxisBoundsManual(true);
 //        graph.getViewport().setMinX(0);
 //        graph.getViewport().setMaxX(maxPoints);
