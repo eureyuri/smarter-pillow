@@ -54,6 +54,7 @@ public class SecondFragment extends Fragment {
     private String [] permissions = {Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
     public static LineGraphSeries<DataPoint> series;
+    public static View viewSecondFragment;
 
     private Button recordButton = null;
     boolean mStartRecording = true;
@@ -208,10 +209,10 @@ public class SecondFragment extends Fragment {
             Log.i("onDateSet","onDateSet called!");
             Log.i("onDateSet_body", Integer.toString(day));
             // Do something with the date chosen by the user
-            series = getSnoreRecord(year, month+1, day);
-            Log.i("onDateSet_series", String.valueOf(series));
-            GraphView graph = (GraphView) view.findViewById(R.id.graph);
-            graph.addSeries(series);
+            SecondFragment.series = getSnoreRecord(year, month+1, day);
+            Log.i("onDateSet_series", String.valueOf(SecondFragment.series));
+            GraphView graph = (GraphView) viewSecondFragment.findViewById(R.id.graph);
+            graph.addSeries(SecondFragment.series);
         }
     }
 
@@ -229,15 +230,15 @@ public class SecondFragment extends Fragment {
             LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState
     ) {
-        View view = inflater.inflate(R.layout.fragment_second, container, false);
+        viewSecondFragment = inflater.inflate(R.layout.fragment_second, container, false);
         ActivityCompat.requestPermissions(getActivity(), permissions, REQUEST_RECORD_AUDIO_PERMISSION);
 
-        recordButton = view.findViewById(R.id.start);
+        recordButton = viewSecondFragment.findViewById(R.id.start);
 //        graph.getViewport().setXAxisBoundsManual(true);
 //        graph.getViewport().setMinX(0);
 //        graph.getViewport().setMaxX(maxPoints);
 
-        return view;
+        return viewSecondFragment;
     }
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
