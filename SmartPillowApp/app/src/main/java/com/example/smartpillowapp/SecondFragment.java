@@ -1,6 +1,8 @@
 package com.example.smartpillowapp;
 
 import android.Manifest;
+import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
@@ -14,11 +16,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
@@ -32,6 +36,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.util.Calendar;
 
 public class SecondFragment extends Fragment {
 
@@ -44,6 +49,8 @@ public class SecondFragment extends Fragment {
 
     private LineGraphSeries<DataPoint> series;
     private Button recordButton = null;
+    private int y,m,d;
+
     boolean mStartRecording = true;
     private MediaRecorder recorder = null;
 
@@ -77,7 +84,6 @@ public class SecondFragment extends Fragment {
     MyRunnable myRunnable = new MyRunnable();
     private Thread thread = new Thread(myRunnable);
 
-//    String fileName = "HELLO";
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -121,6 +127,35 @@ public class SecondFragment extends Fragment {
         recorder = null;
     }
 
+    public static class DatePickerFragment extends DialogFragment
+            implements DatePickerDialog.OnDateSetListener {
+        int year, month, day;
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            // Use the current date as the default date in the picker
+            final Calendar c = Calendar.getInstance();
+            year = c.get(Calendar.YEAR);
+            month = c.get(Calendar.MONTH);
+            day = c.get(Calendar.DAY_OF_MONTH);
+
+            // Create a new instance of DatePickerDialog and return it
+            return new DatePickerDialog(getActivity(), this, year, month, day);
+        }
+        public void onDateSet(DatePicker view, int year, int month, int day) {
+            Log.i("onDateSet","onDateSet called!");
+            Log.i("onDateSet_body", Integer.toString(day));
+            // Do something with the date chosen by the user
+        }
+    }
+
+
+
+    public void showDatePickerDialog() {
+        Log.i("showDatePickerDialog","showDatePickerDialog called!");
+        DialogFragment newFragment = new DatePickerFragment();
+        newFragment.show(getChildFragmentManager(), "datePicker");
+    }
+
 
     @Override
     public View onCreateView(
@@ -128,6 +163,7 @@ public class SecondFragment extends Fragment {
             Bundle savedInstanceState
     ) {
         View view = inflater.inflate(R.layout.fragment_second, container, false);
+        Button calendar_picker = view.findViewById(R.id.pick_date);
         ActivityCompat.requestPermissions(getActivity(), permissions, REQUEST_RECORD_AUDIO_PERMISSION);
 
         series = new LineGraphSeries<DataPoint>(new DataPoint[] {
@@ -173,15 +209,12 @@ public class SecondFragment extends Fragment {
                 mStartRecording = !mStartRecording;
             }
         });
-
-//        view.findViewById(R.id.stop);
-//        view.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                thread.interrupt();
-//
-//            }
-//        });
+        view.findViewById(R.id.pick_date).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDatePickerDialog();
+            }
+        });
     }
 
     @Override
@@ -193,3 +226,5 @@ public class SecondFragment extends Fragment {
         }
     }
 }
+
+
