@@ -77,6 +77,7 @@ public class SecondFragment extends Fragment {
     MyRunnable myRunnable = new MyRunnable();
     private Thread thread = new Thread(myRunnable);
 
+
 //    String fileName = "HELLO";
 
     @Override
@@ -167,7 +168,7 @@ public class SecondFragment extends Fragment {
 //                        e.printStackTrace();
 //                    }
                     thread.interrupt();
-
+                    thread = new Thread(myRunnable);
                     onRecord(mStartRecording);
                 }
                 mStartRecording = !mStartRecording;
