@@ -28,6 +28,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.GridLabelRenderer;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
@@ -169,7 +170,8 @@ public class SecondFragment extends Fragment {
                 for (int i = 0; i < snore_data.length(); i++)
                 {
                     JSONObject item = snore_data.getJSONObject(i);
-                    dp[i] = new DataPoint(i, item.getInt("loudness"));
+
+                    dp[i] = new DataPoint( (int) (i/3600), item.getInt("loudness"));
 //                    Log.i("getSnoreRecord - datetime+db", String.valueOf(item.getInt("loudness")));
 
                 }
@@ -207,7 +209,11 @@ public class SecondFragment extends Fragment {
             SecondFragment.series = getSnoreRecord(year, month+1, day);
             series.setTitle("Random Curve 1");
             GraphView graph = (GraphView) viewSecondFragment.findViewById(R.id.graph);
+            GridLabelRenderer gridLabel = graph.getGridLabelRenderer();
+            gridLabel.setHorizontalAxisTitle("Time in hour");
+            gridLabel.setVerticalAxisTitle("Magnitude in decibel");
             graph.getGridLabelRenderer().setHorizontalLabelsColor(Color.GREEN);
+            graph.getGridLabelRenderer().setVerticalLabelsColor(Color.RED);
             graph.addSeries(SecondFragment.series);
         }
     }
