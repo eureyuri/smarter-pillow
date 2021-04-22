@@ -3,7 +3,7 @@ import json
 from datetime import datetime, timedelta
 import random
 
-BASE_URL = 'http://127.0.0.1:8080'
+BASE_URL = 'http://ec2-18-206-197-126.compute-1.amazonaws.com:8080'
 URL = BASE_URL + '/mock_insert_weight'
 
 

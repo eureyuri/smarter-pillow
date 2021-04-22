@@ -2,7 +2,7 @@ import requests
 import json
 from datetime import datetime
 
-BASE_URL = 'http://127.0.0.1:8080'
+BASE_URL = 'http://ec2-18-206-197-126.compute-1.amazonaws.com:8080'
 URL = BASE_URL + '/insert_time'
 
 
