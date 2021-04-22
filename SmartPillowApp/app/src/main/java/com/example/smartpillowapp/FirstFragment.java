@@ -145,12 +145,13 @@ public class FirstFragment extends Fragment implements TimePickerDialog.OnTimeSe
     }
 
     private void getOverallQuality() {
-        String j_msg = "{\"datetime\": \"2021-04-20T00:00:00.000Z\"}";
+        String j_msg = "{\"datetime\": \"2021-04-19T00:00:00.000Z\"}";
         NetworkAsyncTask obj = new NetworkAsyncTask(root, "/sleep_quality", j_msg, "POST");
         try {
             String response = obj.execute().get();
             try {
                 JSONObject res = new JSONObject(response);
+                System.out.println(res);
                 JSONObject time = res.getJSONObject("time");
                 String  sleepTime = time.getString("time");
                 String movement = res.getString("movement");
