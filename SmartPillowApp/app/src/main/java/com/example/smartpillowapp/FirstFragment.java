@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,8 +27,10 @@ import com.github.mikephil.charting.data.PieEntry;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -117,6 +120,7 @@ public class FirstFragment extends Fragment implements TimePickerDialog.OnTimeSe
         c.set(Calendar.SECOND, 0);
 
         updateTimeText(hourOfDay, minute);
+        setSleepHours(hourOfDay, minute);
         startAlarm(c);
     }
 
@@ -124,6 +128,48 @@ public class FirstFragment extends Fragment implements TimePickerDialog.OnTimeSe
         String t = "Alarm set";
         alarmText.setText(t);
         alarmTime.setText(hour + ":" + min);
+    }
+
+    private void setSleepHours(int hour, int min) {
+//        Get current time
+        Calendar cal = Calendar.getInstance();
+        long current = cal.getTime().getTime();
+
+//      Get alarm time
+        Calendar cal2 = Calendar.getInstance();
+        int todayYear = Calendar.getInstance().get(Calendar.YEAR) ;
+        int todayMonth = Calendar.getInstance().get(Calendar.MONTH);
+        int todayDay = Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
+        cal2.set(todayYear, todayMonth, todayDay, hour, min);
+        long alarm = cal2.getTime().getTime();
+
+//      Get hours slept from diff
+        long millis = alarm - current;
+        double hours = millis / (double)(1000 * 60 * 60);
+        DecimalFormat df = new DecimalFormat("#.#");
+        String slept = df.format(hours);
+
+//        Send to backend
+        String dayFormatted = Integer.toString(todayYear);
+        todayMonth++;
+        if (todayMonth < 10) dayFormatted += "-0" + todayMonth;
+        else dayFormatted += "-" + todayMonth;
+
+        if (todayDay < 10) dayFormatted += "0" + todayDay;
+        else dayFormatted += "-" + todayDay;
+
+        dayFormatted += "T00:00:00.000Z";
+
+        String j_msg = "{\"datetime\": \"" + dayFormatted + "\", \"time\": " + slept + "}";
+        System.out.println(j_msg);
+        NetworkAsyncTask obj = new NetworkAsyncTask(root, "/insert_time", j_msg, "POST");
+        try {
+            obj.execute().get();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private void startAlarm(Calendar c) {
@@ -145,7 +191,13 @@ public class FirstFragment extends Fragment implements TimePickerDialog.OnTimeSe
     }
 
     private void getOverallQuality() {
-        String j_msg = "{\"datetime\": \"2021-04-19T00:00:00.000Z\"}";
+//        Get yesterday's date
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -1);
+        Date yesterday = cal.getTime();
+        String yesterdayFormatted = (String) DateFormat.format("yyyy-MM-ddT00:00:00.000Z", yesterday);
+
+        String j_msg = "{\"datetime\": \"" + yesterdayFormatted + "\"}";
         NetworkAsyncTask obj = new NetworkAsyncTask(root, "/sleep_quality", j_msg, "POST");
         try {
             String response = obj.execute().get();
