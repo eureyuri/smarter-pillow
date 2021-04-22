@@ -25,3 +25,9 @@ send(d, 4.0)
 # 4/20 -- 5.5hrs, good sleep
 d = datetime(2021, 4, 20, 0, 0, 0, 0)
 send(d, 5.5)
+
+d = datetime(2021, 4, 21, 0, 0, 0, 0)
+send(d, 2.0)
+
+d = datetime(2021, 4, 22, 0, 0, 0, 0)
+send(d, 2.0)

@@ -37,13 +37,13 @@ def loop_and_send(date, sec, get_val):
         requests.post(URL, data=json.dumps(data), headers={'Content-Type': 'application/json'})
 
 
-# 4/18 -- 2hrs, bad sleep
-d = datetime(2021, 4, 18, 0, 0, 0, 0)
-loop_and_send(d, 7200, get_val_bad)
-
-# 4/19 -- 4hrs, good sleep
-d = datetime(2021, 4, 19, 0, 0, 0, 0)
-loop_and_send(d, 14400, get_val_good)
+# # 4/18 -- 2hrs, bad sleep
+# d = datetime(2021, 4, 18, 0, 0, 0, 0)
+# loop_and_send(d, 7200, get_val_bad)
+#
+# # 4/19 -- 4hrs, good sleep
+# d = datetime(2021, 4, 19, 0, 0, 0, 0)
+# loop_and_send(d, 14400, get_val_good)
 
 # 4/20 -- 5.5hrs, bad sleep
 d = datetime(2021, 4, 20, 0, 0, 0, 0)

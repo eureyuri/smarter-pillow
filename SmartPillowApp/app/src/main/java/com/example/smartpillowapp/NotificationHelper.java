@@ -39,6 +39,9 @@ public class NotificationHelper extends ContextWrapper {
     }
 
     public NotificationCompat.Builder getChannelNotification() {
+        FirstFragment f = new FirstFragment();
+        f.wakeup();
+
         return new NotificationCompat.Builder(getApplicationContext(), channelID)
                 .setContentTitle("Smarter Pillow")
                 .setContentText("Time to wake up!")

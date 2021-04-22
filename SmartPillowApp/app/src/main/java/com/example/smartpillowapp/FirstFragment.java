@@ -41,6 +41,7 @@ public class FirstFragment extends Fragment implements TimePickerDialog.OnTimeSe
     private TextView snoreText;
     private TextView movementText;
     private int sleepQuality = 0;
+    private boolean isWakeup = false;
 
     private String root = "http://ec2-18-206-197-126.compute-1.amazonaws.com:8080";
 
@@ -128,7 +129,10 @@ public class FirstFragment extends Fragment implements TimePickerDialog.OnTimeSe
     private void updateTimeText(int hour, int min) {
         String t = "Alarm set";
         alarmText.setText(t);
-        alarmTime.setText(hour + ":" + min);
+
+        String minString = String.valueOf(min);
+        if (min < 10) minString = "0" + minString;
+        alarmTime.setText(hour + ":" + minString);
     }
 
     private void setSleepHours(int hour, int min) {
@@ -145,7 +149,7 @@ public class FirstFragment extends Fragment implements TimePickerDialog.OnTimeSe
         long alarm = cal2.getTime().getTime();
 
 //      Get hours slept from diff
-        long millis = alarm - current;
+        double millis = Math.abs(alarm - current);
         double hours = millis / (double)(1000 * 60 * 60);
         DecimalFormat df = new DecimalFormat("#.#");
         String slept = df.format(hours);
@@ -212,7 +216,38 @@ public class FirstFragment extends Fragment implements TimePickerDialog.OnTimeSe
         PendingIntent pendingIntent = PendingIntent.getBroadcast(getActivity(), 1, intent, 0);
         alarmManager.cancel(pendingIntent);
         stopWeightSensor();
+        deflatePillow();
         alarmText.setText("Alarm not set");
+    }
+
+    public void wakeup() {
+        String j_msg = "{\"pillow\": \"lower\", \"state\": true}";
+        String j_msg2 = "{\"pillow\": \"upper\", \"state\": true}";
+        NetworkAsyncTask obj = new NetworkAsyncTask(root, "/set_pillow_height", j_msg, "POST");
+        NetworkAsyncTask obj2 = new NetworkAsyncTask(root, "/set_pillow_height", j_msg2, "POST");
+        try {
+            obj.execute().get();
+            obj2.execute().get();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void deflatePillow() {
+        String j_msg = "{\"pillow\": \"lower\", \"state\": false}";
+        String j_msg2 = "{\"pillow\": \"upper\", \"state\": false}";
+        NetworkAsyncTask obj = new NetworkAsyncTask(root, "/set_pillow_height", j_msg, "POST");
+        NetworkAsyncTask obj2 = new NetworkAsyncTask(root, "/set_pillow_height", j_msg2, "POST");
+        try {
+            obj.execute().get();
+            obj2.execute().get();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private void getOverallQuality() {
@@ -229,8 +264,12 @@ public class FirstFragment extends Fragment implements TimePickerDialog.OnTimeSe
             try {
                 JSONObject res = new JSONObject(response);
                 System.out.println(res);
-                JSONObject time = res.getJSONObject("time");
-                String  sleepTime = time.getString("time");
+
+//                JSONObject time = res.getJSONObject("time");
+//                String  sleepTime = time.getString("time");
+                double time = res.getDouble("time");
+                String  sleepTime = String.valueOf(time);
+
                 String movement = res.getString("movement");
                 String snore = res.getString("snore");
                 sleepQuality = Math.round(Float.parseFloat(res.getString("sleep_quality")) * 100);
