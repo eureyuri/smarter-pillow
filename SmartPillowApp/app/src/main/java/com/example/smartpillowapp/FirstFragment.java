@@ -122,6 +122,7 @@ public class FirstFragment extends Fragment implements TimePickerDialog.OnTimeSe
         updateTimeText(hourOfDay, minute);
         setSleepHours(hourOfDay, minute);
         startAlarm(c);
+        startWeightSensor();
     }
 
     private void updateTimeText(int hour, int min) {
@@ -161,8 +162,31 @@ public class FirstFragment extends Fragment implements TimePickerDialog.OnTimeSe
         dayFormatted += "T00:00:00.000Z";
 
         String j_msg = "{\"datetime\": \"" + dayFormatted + "\", \"time\": " + slept + "}";
-        System.out.println(j_msg);
         NetworkAsyncTask obj = new NetworkAsyncTask(root, "/insert_time", j_msg, "POST");
+        try {
+            obj.execute().get();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void startWeightSensor() {
+        String j_msg = "{\"state\": true}";
+        NetworkAsyncTask obj = new NetworkAsyncTask(root, "/set_weight_sensor", j_msg, "POST");
+        try {
+            obj.execute().get();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void stopWeightSensor() {
+        String j_msg = "{\"state\": false}";
+        NetworkAsyncTask obj = new NetworkAsyncTask(root, "/set_weight_sensor", j_msg, "POST");
         try {
             obj.execute().get();
         } catch (ExecutionException e) {
@@ -187,6 +211,7 @@ public class FirstFragment extends Fragment implements TimePickerDialog.OnTimeSe
         Intent intent = new Intent(getActivity(), AlertReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(getActivity(), 1, intent, 0);
         alarmManager.cancel(pendingIntent);
+        stopWeightSensor();
         alarmText.setText("Alarm not set");
     }
 
