@@ -1,0 +1,39 @@
+.quotes {
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+    margin-bottom: 2em;
+}
+
+.quote {
+    width: 45%;
+}
+
+.quote__emphasis {
+    color: #3173da;
+    font-weight: bold;
+}
+
+.img__arch {
+    width: 100%;
+    border-radius: 20px;
+}
+
+.list {
+    list-style-type: square;
+    margin-bottom: 0;
+}
+
+h4 {
+    font-size: 1.2em;
+}
+
+.item__container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+.item.result {
+    width: 45%;
+}

@@ -11,6 +11,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
 		<link rel="stylesheet" href="assets/css/main.css" />
+		<link rel="stylesheet" href="assets/css/original.css" />
 		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
 		<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
 	</head>
@@ -82,8 +83,16 @@
 								<iframe width="560" height="315" src="https://www.youtube.com/embed/DvXWixMz54I" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 								<h2 class="alt">Smarter Pillow</h2>
-								<p>Project Wonderland is a blah blah blah</p>
-								<p>(Abstract here)</p>
+								<p>Combating sleeping disorders and enhancing the quality of sleep
+									using Internet of Things.</p>
+
+								<p>
+									Smarter Pillow is the next generation solution for quality sleep. It utilizes a weight
+									sensor and microphone to track your movement and snoring to automatically adjust the
+									pillow so that you can easily breathe while asleep. Users can also always track how well
+									they have been sleeping on any day. We have also developed a new way to gently wake
+									up the user -- shake and wake.
+								</p>
 
 
 							<footer>
@@ -101,10 +110,27 @@
 								<h2>Motivation</h2>
 							</header>
 
-							<p align="left">You can choose to use photos or figures to help</p>
+							<div class="quotes">
+								<div class="quote">
+									"We spend about
+									<span class="quote__emphasis">one-third of our life</span>
+									 either sleeping or attempting to do so"
+								</div>
+								<div class="quote">
+									"<span class="quote__emphasis">50 - 70 million</span> US adults have a sleep disorder.
+									<span class="quote__emphasis">48.0% report snoring</span>."
+								</div>
+							</div>
 
-
-
+							<p align="left">
+								Sleeping is a part of everyday life, yet sleeping disorder is a very common issue.
+								One of the common disorder is snoring. Snoring occurs when breathing is partially
+								obstructed and is also considered as a respiratory failure.
+								Not only does it affect your sleeping behavior, but it also affects the sleep quality of
+								your loved ones.
+								This is where we came up with the idea of a Smarter Pillow for better sleep and to combat
+								sleeping disorder, specifically snoring.
+							</p>
 						</div>
 					</section>
 
@@ -116,23 +142,57 @@
 								<h2>System</h2>
 							</header>
 
-							<p align="left">Remember to use combination of descriptions, photos, and figures</p>
+							<p align="left">
+								Our system constitutes of a microcontroller, ESP8266, with a weight sensor, smart plugs
+								with air pumps and air bags, frontend android application, and a backend server.
+							</p>
 
 							<h3 align="left">Architecture</h3>
+							<img src="images/architecture.png" alt="architecture" class="img__arch">
 
-							<p align="left">Blah blah blah</p>
+							<p align="left">
+								Our frontend is an Android application written in Java. Here, we display the daily statistics
+								and display visualization of the collected data. It also deals with the setting and canceling
+								of the alarm as well as calling the backend for starting certain processes and collecting
+								sound data through the builtin microphone while sleeping.
+							</p>
+
+							<p align="left">
+								The embedded system component is implemented using the ESP8266 and micropython. It is connected to the
+								weight sensor and sends the collected data to our backend. For the pillow, we also have
+								the air pumps and air bags connected for lifting the head up and down. The air pump is
+								connected to a smarter plug that is turned on/off with the utilization of the IFTTT API.
+								We send the requests to IFTTT to turn on/off when we observe snoring or the alarm is on.
+							</p>
+
+							<p align="left">
+								Lastly, the backend Flask server communicates the frontend Android app, ESP8266, IFTTT
+								API, and the mongoDB database. We have our Flask server running on the EC2 linux instance
+								together with the MongoDB database. It is also in charge of doing the calculations for
+								our analytics.
+							</p>
 
 
 							<h3 align="left">Technical Components</h3>
 
-							<p align="left">Blah blah blah</p>
+							<h4 align="left">Hardware</h4>
+							<ul>
+								<li align="left" class="list">HUZZAH ESP8266</li>
+								<li align="left" class="list">Half-bridge strain gauge Load Cell Body Scale Weighting Sensor</li>
+								<li align="left" class="list">HX711 Amplifier</li>
+								<li align="left" class="list">Kasa Smart Plugs</li>
+								<li align="left" class="list">Air pumps</li>
+								<li align="left" class="list">Air bags</li>
+							</ul>
 
-
-							<h3 align="left">Prototype</h3>
-
-							<p align="left">Blah blah blah</p>
-
-
+							<h4 align="left">Software</h4>
+							<ul style="margin-bottom: 0">
+								<li align="left" class="list">Python Flask Server</li>
+								<li align="left" class="list">Android Application</li>
+								<li align="left" class="list">AWS EC2</li>
+								<li align="left" class="list">MongoDB</li>
+								<li align="left" class="list">IFTTT</li>
+							</ul>
 
 						</div>
 					</section>
@@ -145,16 +205,35 @@
 								<h2>Results</h2>
 							</header>
 
-							<p align="left">Remember to use figures to help illustrate results</p>
+							<div class="item__container">
+								<article class="item result">
+									<a href="#" class="image fit"><img src="images/pic06.jpg" alt="" /></a>
+									<header>
+										<h3>Android App -- Home</h3>
+									</header>
+								</article>
 
+								<article class="item result">
+									<a href="#" class="image fit"><img src="images/pic06.jpg" alt="" /></a>
+									<header>
+										<h3>Android App -- Data</h3>
+									</header>
+								</article>
 
-							<article class="item">
-								<a href="#" class="image fit"><img src="images/pic06.jpg" alt="" /></a>
-								<header>
-									<h3>Caption</h3>
-								</header>
-							</article>
+								<article class="item result">
+									<a href="#" class="image fit"><img src="images/pic06.jpg" alt="" /></a>
+									<header>
+										<h3>Snore detection -- console</h3>
+									</header>
+								</article>
 
+								<article class="item result">
+									<a href="#" class="image fit"><img src="images/pic06.jpg" alt="" /></a>
+									<header>
+										<h3>Smarter Pillow</h3>
+									</header>
+								</article>
+							</div>
 
 						</div>
 					</section>
@@ -166,7 +245,17 @@
 								<h2>References</h2>
 							</header>
 
-							<p align="left">Blah blah blah</p>
+							<p align="center">
+								PubMed.gov: We spend about one-third of our life either sleeping or attempting to do so
+								<br>
+								<a href="https://pubmed.ncbi.nlm.nih.gov/21056174/">https://pubmed.ncbi.nlm.nih.gov/21056174/</a>
+							</p>
+
+							<p align="center">
+								American Sleep Association: Sleep and Sleep Disorder Statistics
+								<br>
+								<a href="https://www.sleepassociation.org/about-sleep/sleep-statistics/">https://www.sleepassociation.org/about-sleep/sleep-statistics/</a>
+							</p>
 
 						</div>
 					</section>
