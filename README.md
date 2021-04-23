@@ -1,12 +1,31 @@
-# smarter-pillow
-## Description
-### Motivation
-
-### Functionality
-
+# Smarter Pillow
+Combating sleeping disorders and enhancing the quality of sleep using Internet of Things.
 
 ## Demo
-TODO
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=DvXWixMz54I"><img src="https://img.youtube.com/vi/DvXWixMz54I/0.jpg" alt="demo video"></a>
+</p>
+
+## Description
+Smarter Pillow is the next generation solution for quality sleep. It utilizes a weight sensor and microphone to track your movement and snoring to automatically adjust the pillow so that you can easily breathe while asleep. Users can also always track how well they have been sleeping on any day. We have also developed a new way to gently wake up the user -- shake and wake.
+
+### Motivation
+"50 - 70 million US adults have a sleep disorder. 48.0% report snoring."
+
+"We spend about one-third of our life either sleeping or attempting to do so"
+
+Sleeping is a part of everyday life, yet sleeping disorder is a very common issue. One of the common disorder is snoring. Snoring occurs when breathing is partially obstructed and is also considered as a respiratory failure. Not only does it affect your sleeping behavior, but it also affects the sleep quality of your loved ones. This is where we came up with the idea of a Smarter Pillow for better sleep and to combat sleeping disorder, specifically snoring.
+
+### Functionality
+<p align="center">
+  <img height="500" src="https://github.com/eureyuri/smarter-pillow/blob/main/website/images/architecture.png?raw=true">
+</p>
+
+Our frontend is an Android application written in Java. Here, we display the daily statistics and display visualization of the collected data. It also deals with the setting and canceling of the alarm as well as calling the backend for starting certain processes and collecting sound data through the builtin microphone while sleeping.
+
+The embedded system component is implemented using the ESP8266 and micropython. It is connected to the weight sensor and sends the collected data to our backend. For the pillow, we also have the air pumps and air bags connected for lifting the head up and down. The air pump is connected to a smarter plug that is turned on/off with the utilization of the IFTTT API. We send the requests to IFTTT to turn on/off when we observe snoring or the alarm is on.
+
+Lastly, the backend Flask server communicates the frontend Android app, ESP8266, IFTTT API, and the mongoDB database. We have our Flask server running on the EC2 linux instance together with the MongoDB database. It is also in charge of doing the calculations for our analytics.
 
 ## Installation
 ### Python
