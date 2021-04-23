@@ -79,6 +79,7 @@ public class SecondFragment extends Fragment {
 
         @Override
         public void run() {
+            int counter = 0;
             while(!Thread.interrupted()) {
 
                 float volume = recorder.getMaxAmplitude();
@@ -87,8 +88,8 @@ public class SecondFragment extends Fragment {
                 final int month = c.get(Calendar.MONTH) + 1;
                 final int day = c.get(Calendar.DAY_OF_MONTH);
                 String send;
-                String snore_msg = "";
-                String pillow_msg = "";
+                String snore_msg;
+                String pillow_msg;
 
                 if (month < 10) {
                     send = Integer.toString(year) + "-0" + Integer.toString(month) + "-" + Integer.toString(day) + "T00:00:00.000Z";
@@ -100,19 +101,30 @@ public class SecondFragment extends Fragment {
 
                 if (volume > 10000) { /* snoring */
                     snore_msg = "{\"datetime\":" + send + "\"loudness\"" + Float.toString(volume) + ", \"snore\": true}";
-                    pillow_msg = "{\"pillow\": \"lower]\", \"state\": true }";
+                    if (counter == 0) {
+                        pillow_msg = "{\"pillow\": \"upper\", \"state\": true }";
+                        counter++;
+                    }
+                    else if (counter != 2000){
+                        counter++;
+                    }
+                    else {
+                        counter = 0;
+                    }
+
                 } else {
                     snore_msg = "{\"datetime\":" + send + "\"loudness\"" + Float.toString(volume) + ", \"snore\": false}";
+                    pillow_msg = "{\"pillow\": \"upper\", \"state\": false }";
                 }
 
                 NetworkAsyncTask obj = new NetworkAsyncTask(root, "/insert_sound", snore_msg, "POST");
-                if (pillow_msg == ""){
-                    NetworkAsyncTask obj2 = new NetworkAsyncTask(root, "/set_pillow_height", pillow_msg, "POST");
-                }
+                NetworkAsyncTask obj2 = new NetworkAsyncTask(root, "/set_pillow_height", pillow_msg, "POST");
 
                 try {
                     obj.execute().get();
-//                    obj2.execute().get();
+                    if (pillow_msg == "") {
+                        obj2.execute().get();
+                    }
                 } catch (ExecutionException e) {
                     e.printStackTrace();
                 } catch (InterruptedException e) {
@@ -195,8 +207,6 @@ public class SecondFragment extends Fragment {
                     JSONObject item = snore_data.getJSONObject(i);
 
                     dp[i] = new DataPoint( (int) (i/3600), item.getInt("loudness"));
-                    item.getString("datetime");
-//                    Log.i("getSnoreRecord - datetime+db", String.valueOf(item.getInt("loudness")));
                 }
 
             } catch (JSONException e) {
@@ -227,26 +237,10 @@ public class SecondFragment extends Fragment {
             try {
                 JSONArray movement_data = new JSONArray(response);
                 dp = new DataPoint[movement_data.length()];
-                int fakemove;
                 for (int i = 0; i < movement_data.length(); i++)
                 {
-//                    JSONObject item = movement_data.getJSONObject(i);
-                    if (i < 5400)
-                    {
-                        fakemove = (int) ((Math.random() * (20 - 19)) + 19);
-                    }
-                    else if (i >= 5400 && i <= 9000)
-                    {
-                        fakemove = (int) ((Math.random() * (18 - 13)) + 13);
-                    }
-                    else if (i >= 10800 && i <= 14400)
-                    {
-                        fakemove = (int) ((Math.random() * (17 - 16)) + 16);
-                    }
-                    else {
-                        fakemove = (int) ((Math.random() * (18 - 17)) + 17);
-                    }
-                    dp[i] = new DataPoint((int) (i/3600), fakemove);
+                    JSONObject item = movement_data.getJSONObject(i);
+                    dp[i] = new DataPoint((int) (i/3600), item.getInt("movement"));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -359,12 +353,6 @@ public class SecondFragment extends Fragment {
                     thread.start();
                 } else {
                     recordButton.setText("Start recording");
-//                    myRunnable.doStop();
-//                    try {
-//                        thread.sleep(100);
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
                     thread.interrupt();
 
                     onRecord(mStartRecording);
