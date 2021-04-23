@@ -80,6 +80,7 @@ public class SecondFragment extends Fragment {
         @Override
         public void run() {
             int counter = 0;
+            boolean isOff = true;
             while(!Thread.interrupted()) {
 
                 float volume = recorder.getMaxAmplitude();
@@ -88,8 +89,8 @@ public class SecondFragment extends Fragment {
                 final int month = c.get(Calendar.MONTH) + 1;
                 final int day = c.get(Calendar.DAY_OF_MONTH);
                 String send;
-                String snore_msg;
-                String pillow_msg;
+                String snore_msg = "";
+                String pillow_msg = "";
 
                 if (month < 10) {
                     send = Integer.toString(year) + "-0" + Integer.toString(month) + "-" + Integer.toString(day) + "T00:00:00.000Z";
@@ -99,22 +100,24 @@ public class SecondFragment extends Fragment {
                     send = Integer.toString(year) + "-" + Integer.toString(month) + "-" + Integer.toString(day) + "T00:00:00.000Z";
                 }
 
-                if (volume > 10000) { /* snoring */
+                if (volume > 10000 && isOff) { /* snoring */
                     snore_msg = "{\"datetime\":" + send + "\"loudness\"" + Float.toString(volume) + ", \"snore\": true}";
+                    pillow_msg = "{\"pillow\": \"upper\", \"state\": true }";
+                    isOff = false;
+                }
+                else if(volume < 100){
                     if (counter == 0) {
-                        pillow_msg = "{\"pillow\": \"upper\", \"state\": true }";
                         counter++;
                     }
-                    else if (counter != 2000){
+                    else if (counter == 2000){
+                        pillow_msg = "{\"pillow\": \"upper\", \"state\": false }";
+                        isOff = true;
                         counter++;
                     }
                     else {
                         counter = 0;
                     }
-
-                } else {
                     snore_msg = "{\"datetime\":" + send + "\"loudness\"" + Float.toString(volume) + ", \"snore\": false}";
-                    pillow_msg = "{\"pillow\": \"upper\", \"state\": false }";
                 }
 
                 NetworkAsyncTask obj = new NetworkAsyncTask(root, "/insert_sound", snore_msg, "POST");
@@ -354,7 +357,7 @@ public class SecondFragment extends Fragment {
                 } else {
                     recordButton.setText("Start recording");
                     thread.interrupt();
-
+                    thread = new Thread(myRunnable);
                     onRecord(mStartRecording);
                 }
                 mStartRecording = !mStartRecording;
