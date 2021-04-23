@@ -99,35 +99,36 @@ public class SecondFragment extends Fragment {
                 {
                     send = Integer.toString(year) + "-" + Integer.toString(month) + "-" + Integer.toString(day) + "T00:00:00.000Z";
                 }
-
-                if (volume > 10000 && isOff) { /* snoring */
-                    snore_msg = "{\"datetime\":" + send + "\"loudness\"" + Float.toString(volume) + ", \"snore\": true}";
-                    pillow_msg = "{\"pillow\": \"upper\", \"state\": true }";
-                    isOff = false;
-                }
-                else if(volume < 100){
-                    if (counter == 0) {
-                        counter++;
-                    }
-                    else if (counter == 2000){
-                        pillow_msg = "{\"pillow\": \"upper\", \"state\": false }";
-                        isOff = true;
-                        counter++;
-                    }
-                    else {
-                        counter = 0;
-                    }
-                    snore_msg = "{\"datetime\":" + send + "\"loudness\"" + Float.toString(volume) + ", \"snore\": false}";
-                }
+                snore_msg = "{\"datetime\":" + send + ", \"loudness\":" + Float.toString(volume) + ", \"snore\": true}";
+//
+//                if (volume > 10000 && isOff) { /* snoring */
+//                    snore_msg = "{\"datetime\":" + send + ", \"loudness\"" + Float.toString(volume) + ", \"snore\": true}";
+//                    pillow_msg = "{\"pillow\": \"upper\", \"state\": true }";
+//                    isOff = false;
+//                }
+//                else if(volume < 100){
+//                    if (counter == 0) {
+//                        counter++;
+//                    }
+//                    else if (counter == 2000){
+//                        pillow_msg = "{\"pillow\": \"upper\", \"state\": false }";
+//                        isOff = true;
+//                        counter++;
+//                    }
+//                    else {
+//                        counter = 0;
+//                    }
+//                    snore_msg = "{\"datetime\":" + send + "\"loudness\"" + Float.toString(volume) + ", \"snore\": false}";
+//                }
 
                 NetworkAsyncTask obj = new NetworkAsyncTask(root, "/insert_sound", snore_msg, "POST");
-                NetworkAsyncTask obj2 = new NetworkAsyncTask(root, "/set_pillow_height", pillow_msg, "POST");
+//                NetworkAsyncTask obj2 = new NetworkAsyncTask(root, "/set_pillow_height", pillow_msg, "POST");
 
                 try {
                     obj.execute().get();
-                    if (pillow_msg == "") {
-                        obj2.execute().get();
-                    }
+//                    if (pillow_msg == "") {
+//                        obj2.execute().get();
+//                    }
                 } catch (ExecutionException e) {
                     e.printStackTrace();
                 } catch (InterruptedException e) {
