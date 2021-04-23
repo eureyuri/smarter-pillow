@@ -80,13 +80,45 @@ public class SecondFragment extends Fragment {
         @Override
         public void run() {
             while(!Thread.interrupted()) {
-//                try {
-//                    Thread.sleep(100);
-//                } catch (InterruptedException e) {
-//                    // We've been interrupted: no more messages.
-//                    Log.i("thread fail",e.toString());
-//                }
+
                 float volume = recorder.getMaxAmplitude();
+                final Calendar c = Calendar.getInstance();
+                final int year = c.get(Calendar.YEAR);
+                final int month = c.get(Calendar.MONTH) + 1;
+                final int day = c.get(Calendar.DAY_OF_MONTH);
+                String send;
+                String snore_msg = "";
+                String pillow_msg = "";
+
+                if (month < 10) {
+                    send = Integer.toString(year) + "-0" + Integer.toString(month) + "-" + Integer.toString(day) + "T00:00:00.000Z";
+                }
+                else
+                {
+                    send = Integer.toString(year) + "-" + Integer.toString(month) + "-" + Integer.toString(day) + "T00:00:00.000Z";
+                }
+
+                if (volume > 10000) { /* snoring */
+                    snore_msg = "{\"datetime\":" + send + "\"loudness\"" + Float.toString(volume) + ", \"snore\": true}";
+                    pillow_msg = "{\"pillow\": \"lower]\", \"state\": true }";
+                } else {
+                    snore_msg = "{\"datetime\":" + send + "\"loudness\"" + Float.toString(volume) + ", \"snore\": false}";
+                }
+
+                NetworkAsyncTask obj = new NetworkAsyncTask(root, "/insert_sound", snore_msg, "POST");
+                if (pillow_msg == ""){
+                    NetworkAsyncTask obj2 = new NetworkAsyncTask(root, "/set_pillow_height", pillow_msg, "POST");
+                }
+
+                try {
+                    obj.execute().get();
+//                    obj2.execute().get();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
                 Log.i("another thread", String.valueOf(volume));
             }
         }
@@ -103,7 +135,6 @@ public class SecondFragment extends Fragment {
                 permissionToRecordAccepted  = grantResults[0] == PackageManager.PERMISSION_GRANTED;
                 break;
         }
-//        if (!permissionToRecordAccepted ) finish();
     }
 
     private void onRecord(boolean start) {
@@ -164,6 +195,7 @@ public class SecondFragment extends Fragment {
                     JSONObject item = snore_data.getJSONObject(i);
 
                     dp[i] = new DataPoint( (int) (i/3600), item.getInt("loudness"));
+                    item.getString("datetime");
 //                    Log.i("getSnoreRecord - datetime+db", String.valueOf(item.getInt("loudness")));
                 }
 
