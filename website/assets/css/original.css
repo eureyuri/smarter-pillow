@@ -37,3 +37,12 @@ h4 {
 .item.result {
     width: 45%;
 }
+
+.item.result.small {
+    width: 25%;
+}
+
+.item.result > header {
+    padding: 2rem;
+}
+
